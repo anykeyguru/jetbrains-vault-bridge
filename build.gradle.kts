@@ -23,6 +23,7 @@ dependencies {
             providers.gradleProperty("platformType"),
             providers.gradleProperty("platformVersion"),
         )
+        bundledPlugin("com.intellij.modules.json") // JSON5 + схема для .vaultbridge.json (optional depends)
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
     }
     testImplementation("junit:junit:4.13.2")

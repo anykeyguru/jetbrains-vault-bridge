@@ -1,0 +1,10 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- .vaultbridge.json открывается как JSON5: комментарии и висячие запятые законны -->
+        <fileType name="JSON5" implementationClass="com.intellij.json.json5.Json5FileType" fieldName="INSTANCE"
+                  language="JSON5" fileNames=".vaultbridge.json"/>
+    </extensions>
+    <extensions defaultExtensionNs="JavaScript.JsonSchema">
+        <ProviderFactory implementation="dev.anykeyguru.vaultbridge.config.json.VaultBridgeSchemaProviderFactory"/>
+    </extensions>
+</idea-plugin>

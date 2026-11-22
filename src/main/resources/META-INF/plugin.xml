@@ -5,6 +5,7 @@
     <!-- description и change-notes подставляются при сборке из docs/*.html -->
 
     <depends>com.intellij.modules.platform</depends>
+    <depends optional="true" config-file="vaultbridge-json.xml">com.intellij.modules.json</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <projectConfigurable parentId="tools"

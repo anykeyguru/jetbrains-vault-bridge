@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Vault Bridge project config (.vaultbridge.json)",
+  "description": "Links this project to its Obsidian vault and controls git auto-commit/push of the vault. Overrides Settings | Tools | Vault Bridge while the file exists.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "vault": {
+      "type": "string",
+      "description": "Obsidian vault folder (the one with .obsidian/): relative to the project root, absolute, or ~/...",
+      "examples": ["../my-notes", "docs/notes", "~/Documents/vault"]
+    },
+    "git": {
+      "type": "object",
+      "description": "Git sync of the vault. Remove the whole block to turn it off.",
+      "additionalProperties": false,
+      "properties": {
+        "autoCommit": {
+          "type": "boolean",
+          "default": true,
+          "description": "Commit changed notes automatically (only when the vault is a git repository and something changed)."
+        },
+        "commitInterval": {
+          "type": "string",
+          "default": "5m",
+          "pattern": "^\\s*(\\d+\\s*[smh]\\s*)+$|^\\s*\\d+\\s*$",
+          "description": "How often to look for changes: 30s, 5m, 1h, 1h30m. Minimum 30s.",
+          "examples": ["30s", "5m", "15m", "1h"]
+        },
+        "push": {
+          "type": "boolean",
+          "default": false,
+          "description": "Push commits to the vault repository's existing remote. Never adds remotes, never force-pushes."
+        },
+        "pushInterval": {
+          "type": "string",
+          "default": "30m",
+          "pattern": "^\\s*(\\d+\\s*[smh]\\s*)+$|^\\s*\\d+\\s*$",
+          "description": "How often to push when push is true. Minimum 1m.",
+          "examples": ["10m", "30m", "1h"]
+        },
+        "remote": {
+          "type": "string",
+          "description": "Optional git URL of the vault. Used to offer \"Clone vault\" when the vault folder does not exist.",
+          "examples": ["git@github.com:me/notes.git"]
+        }
+      }
+    }
+  }
+}
