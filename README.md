@@ -132,6 +132,50 @@ No shortcuts are bound by default, to avoid clashing with your keymap. Add your 
 - **Vault Graph** — local graph around the current note (depth 1–3) or the whole vault; scroll to zoom, drag to pan,
   click to open.
 
+## Keep notes safe: `.vaultbridge.json`
+
+Put a `.vaultbridge.json` in the project root to pin the vault for the project and, optionally, let the plugin
+commit (and push) the vault to git for you. **Tools > Vault Bridge > Create .vaultbridge.json** writes one from your
+current settings, with a comment on every field.
+
+```jsonc
+{
+  "vault": "../my-notes",          // relative to the project, absolute, or ~/...
+  "git": {
+    "autoCommit": true,            // default true when "git" is present
+    "commitInterval": "5m",        // 30s, 5m, 1h, 1h30m; minimum 30s
+    "push": false,                 // default false
+    "pushInterval": "30m",         // minimum 1m
+    "remote": "git@github.com:me/notes.git"  // optional, only used to clone a missing vault
+  }
+}
+```
+
+How it behaves:
+
+- **No file** — nothing changes: the vault comes from Settings and the plugin never runs git.
+- **File present** — its `vault` wins over Settings (the settings page shows it read-only). Edits to the file are
+  picked up right away. Broken JSON shows a notification with the error, and Settings is used until it's fixed.
+  `//` comments and trailing commas are fine.
+- **Auto-commit** — every `commitInterval`, if the vault is a git repository and has changes:
+  `git add -A` + `git commit -m "vault: auto-commit 2026-11-22 14:05 (3 files)"`. Nothing to commit — no commit.
+  Your git hooks run as usual. If the vault is inside a bigger repository, only the vault folder is committed.
+  Also tried once when the project closes (best effort).
+- **Not a git repository** — one hint per session with **Initialize git** (`git init`, a `.gitignore` for Obsidian's
+  per-device files, first commit).
+- **Push** — only with `"push": true` and a remote already configured. Plain `git push` (or `git push -u origin
+  <branch>` the first time); never adds remotes, never force-pushes, never waits for a password prompt. If it fails
+  (no network, VPN, auth) you get one warning, and it retries quietly at the next interval.
+- **Vault folder missing** — a notification; with `remote` set it offers **Clone vault**.
+- **Commit Vault Now** (Tools > Vault Bridge) commits right away, and pushes if push is on.
+
+**Someone else's repository?** Keep the file out of their git: the *Create* action offers to add it to
+`.git/info/exclude`, or do it yourself:
+
+```bash
+echo .vaultbridge.json >> .git/info/exclude
+```
+
 ## Troubleshooting
 
 | Symptom | What to do |

@@ -16,6 +16,7 @@ import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent
 import com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent
 import com.intellij.platform.ide.progress.withBackgroundProgress
+import dev.anykeyguru.vaultbridge.config.VaultConfigService
 import dev.anykeyguru.vaultbridge.model.Note
 import dev.anykeyguru.vaultbridge.parse.NoteParser
 import dev.anykeyguru.vaultbridge.settings.VaultSettings
@@ -53,9 +54,9 @@ class VaultIndexService(private val project: Project, private val cs: CoroutineS
         })
     }
 
-    /** Корень vault из настроек проекта или null, если не задан / не существует. */
-    fun configuredRoot(): Path? =
-        VaultSettings.getInstance(project).state.vaultPath
+    /** Корень vault: из `.vaultbridge.json`, если он задаёт `vault`, иначе из настроек проекта; null — не задан. */
+    fun configuredRoot(): Path? = VaultConfigService.getInstance(project).vaultRoot()
+        ?: VaultSettings.getInstance(project).state.vaultPath
             ?.takeIf { it.isNotBlank() }
             ?.let { Paths.get(it.trim()).toAbsolutePath().normalize() }
 
