@@ -17,6 +17,13 @@
         <postStartupActivity implementation="dev.anykeyguru.vaultbridge.startup.VaultStartup"/>
         <statusBarWidgetFactory id="VaultBridge.Status"
                                 implementation="dev.anykeyguru.vaultbridge.ui.VaultStatusBarWidgetFactory"/>
+        <!-- toolwindows: backlinks, tags, graph -->
+        <toolWindow id="Vault Backlinks" anchor="right" secondary="true" icon="/icons/tw-backlinks.svg"
+                    factoryClass="dev.anykeyguru.vaultbridge.toolwindow.BacklinksToolWindowFactory"/>
+        <toolWindow id="Vault Tags" anchor="left" secondary="true" icon="/icons/tw-tags.svg"
+                    factoryClass="dev.anykeyguru.vaultbridge.toolwindow.TagsToolWindowFactory"/>
+        <toolWindow id="Vault Graph" anchor="bottom" icon="/icons/tw-graph.svg"
+                    factoryClass="dev.anykeyguru.vaultbridge.toolwindow.GraphToolWindowFactory"/>
     </extensions>
 
     <actions>
