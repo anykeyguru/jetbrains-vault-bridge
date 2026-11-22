@@ -27,6 +27,7 @@
                                 implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkCompletionContributor"/>
         <completion.confidence language="any" order="first"
                                implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkCompletionConfidence"/>
+        <lookup.charFilter order="first" implementation="dev.anykeyguru.vaultbridge.editor.WikiLinkCharFilter"/>
         <typedHandler order="first" implementation="dev.anykeyguru.vaultbridge.editor.WikiLinkTypedHandler"/>
         <codeInsight.lineMarkerProvider language=""
                                         implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkLineMarkerProvider"/>

@@ -7,11 +7,13 @@ import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionResultSet
 import com.intellij.codeInsight.completion.CompletionType
 import com.intellij.codeInsight.completion.InsertionContext
+import com.intellij.codeInsight.completion.PrioritizedLookupElement
 import com.intellij.codeInsight.completion.impl.CamelHumpMatcher
 import com.intellij.codeInsight.editorActions.TypedHandlerDelegate
 import com.intellij.codeInsight.lookup.LookupElement
 import com.intellij.codeInsight.lookup.LookupElementBuilder
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
@@ -30,6 +32,10 @@ class WikiLinkCompletionContributor : CompletionContributor(), DumbAware {
         if (parameters.completionType != CompletionType.BASIC) return
         val text = parameters.editor.document.charsSequence
         val offset = parameters.offset
+        WikiLinkText.headingQuery(text, offset)?.let { query ->
+            addHeadings(parameters, result, query)
+            return
+        }
         val start = WikiLinkText.completionPrefixStart(text, offset) ?: return
         if (!WikiLinkSupport.isTextContext(parameters.position)) return
         val project = parameters.position.project
@@ -48,6 +54,42 @@ class WikiLinkCompletionContributor : CompletionContributor(), DumbAware {
         // После `[[` прочие варианты (слова, ключевые слова) только мешают.
         rs.stopHere()
     }
+
+    /** `[[note#` — все заголовки, `[[note##` — только второго уровня и т.д. Вставляем с одной `#`, как Obsidian. */
+    private fun addHeadings(parameters: CompletionParameters, result: CompletionResultSet, query: HeadingQuery) {
+        if (!WikiLinkSupport.isTextContext(parameters.position)) return
+        val project = parameters.position.project
+        val ctx = WikiLinkSupport.context(project, parameters.originalFile.virtualFile) ?: return
+        val noteText = if (query.target.isEmpty()) {
+            // [[#… — заголовки текущего документа
+            parameters.originalFile.viewProvider.document?.text ?: return
+        } else {
+            val note = ctx.index.resolve(query.target, ctx.fromPath) ?: return
+            val vf = WikiLinkSupport.noteFile(ctx.root, note) ?: return
+            FileDocumentManager.getInstance().getDocument(vf)?.text ?: return
+        }
+        val headings = WikiLinkText.headings(noteText).filter { query.level == null || it.level == query.level }
+        val text = parameters.editor.document.charsSequence
+        val rs = result.withPrefixMatcher(CamelHumpMatcher(text.subSequence(query.prefixStart, parameters.offset).toString(), false))
+        headings.forEachIndexed { i, h ->
+            val linkText = WikiLinkText.headingForLink(h.text)
+            if (linkText.isEmpty()) return@forEachIndexed
+            val element = LookupElementBuilder.create(HeadingItem(i, linkText), linkText)
+                .withPresentableText("  ".repeat(h.level - 1) + h.text)
+                .withTypeText("#".repeat(h.level), true)
+                .withIcon(VaultBridgeIcons.Vault)
+                .withInsertHandler { ic, _ ->
+                    val insert = "#$linkText"
+                    ic.document.replaceString(query.hashStart, ic.tailOffset, insert)
+                    closeLink(ic, query.hashStart + insert.length)
+                }
+            // порядок как в документе, а не по алфавиту
+            rs.addElement(PrioritizedLookupElement.withPriority(element, (headings.size - i).toDouble()))
+        }
+        rs.stopHere()
+    }
+
+    private data class HeadingItem(val index: Int, val text: String)
 
     private fun noteElement(note: Note, target: String): LookupElement =
         LookupElementBuilder.create(note, target)
@@ -81,9 +123,14 @@ class WikiLinkCompletionContributor : CompletionContributor(), DumbAware {
 /** Авто-попап сразу после второй `[`. Контекст проверяем уже по закоммиченному PSI. */
 class WikiLinkTypedHandler : TypedHandlerDelegate() {
     override fun checkAutoPopup(charTyped: Char, project: Project, editor: Editor, file: PsiFile): Result {
-        if (charTyped != '[') return Result.CONTINUE
         val offset = editor.caretModel.offset
-        if (offset == 0 || editor.document.charsSequence[offset - 1] != '[') return Result.CONTINUE
+        val text = editor.document.charsSequence
+        val trigger = when (charTyped) {
+            '[' -> offset > 0 && text[offset - 1] == '['
+            '#' -> WikiLinkText.openLinkStart(text, offset) != null // [[note# — заголовки
+            else -> false
+        }
+        if (!trigger) return Result.CONTINUE
         if (VaultIndexService.getInstance(project).configuredRoot() == null) return Result.CONTINUE
         AutoPopupController.getInstance(project).scheduleAutoPopup(editor, CompletionType.BASIC) { psiFile ->
             val caret = editor.caretModel.offset
@@ -98,7 +145,10 @@ class WikiLinkTypedHandler : TypedHandlerDelegate() {
 class WikiLinkCompletionConfidence : CompletionConfidence() {
     override fun shouldSkipAutopopup(editor: Editor, contextElement: PsiElement, psiFile: PsiFile, offset: Int): ThreeState {
         val text = editor.document.charsSequence
-        if (offset > text.length || WikiLinkText.completionPrefixStart(text, offset) == null) return ThreeState.UNSURE
+        if (offset > text.length) return ThreeState.UNSURE
+        if (WikiLinkText.completionPrefixStart(text, offset) == null && WikiLinkText.headingQuery(text, offset) == null) {
+            return ThreeState.UNSURE
+        }
         return if (WikiLinkSupport.isTextContext(contextElement)) ThreeState.NO else ThreeState.UNSURE
     }
 }

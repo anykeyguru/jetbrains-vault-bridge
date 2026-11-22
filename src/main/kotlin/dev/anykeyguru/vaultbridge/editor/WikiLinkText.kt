@@ -1,8 +1,18 @@
 package dev.anykeyguru.vaultbridge.editor
 
 import dev.anykeyguru.vaultbridge.model.WikiLink
+import dev.anykeyguru.vaultbridge.parse.FrontmatterParser
 import dev.anykeyguru.vaultbridge.parse.MarkdownMask
 import dev.anykeyguru.vaultbridge.parse.WikiLinkParser
+
+/** Заголовок заметки: уровень 1..6 и текст. */
+data class Heading(val level: Int, val text: String)
+
+/**
+ * Каретка в `[[target#…` / `[[target##…`: [hashStart] — первая `#`, [prefixStart] — начало набранного текста
+ * заголовка, [level] — фильтр по уровню (`##` → 2), null для одной `#` (все уровни).
+ */
+data class HeadingQuery(val target: String, val hashStart: Int, val prefixStart: Int, val level: Int?)
 
 /** Чистая логика поверх текста документа: без PSI и платформы, чтобы легко тестировать. */
 object WikiLinkText {
@@ -43,6 +53,53 @@ object WikiLinkText {
         }
         return null
     }
+
+    /** Смещение сразу после `[[` незакрытой ссылки, в которой стоит каретка (заголовок/`#` допустимы), или null. */
+    fun openLinkStart(text: CharSequence, offset: Int): Int? {
+        if (offset > text.length) return null
+        var i = offset - 1
+        val min = maxOf(0, offset - MAX_SCAN)
+        while (i >= min) {
+            when (text[i]) {
+                '\n', ']', '|' -> return null
+                '[' -> return if (i > 0 && text[i - 1] == '[') i + 1 else null
+            }
+            i--
+        }
+        return null
+    }
+
+    /** `[[note#Инс` → запрос заголовков заметки `note` (пустой target — текущая заметка). */
+    fun headingQuery(text: CharSequence, offset: Int): HeadingQuery? {
+        val start = openLinkStart(text, offset) ?: return null
+        val segment = text.subSequence(start, offset)
+        val hash = segment.indexOf('#')
+        if (hash < 0) return null
+        var j = hash
+        while (j < segment.length && segment[j] == '#') j++
+        if (segment.subSequence(j, segment.length).contains('#')) return null // [[a#b#c]] — вложенные пути не поддерживаем
+        val hashes = j - hash
+        return HeadingQuery(
+            target = segment.subSequence(0, hash).toString().trim(),
+            hashStart = start + hash,
+            prefixStart = start + j,
+            level = if (hashes == 1) null else hashes.coerceAtMost(6),
+        )
+    }
+
+    /** Заголовки заметки по порядку; frontmatter и блоки кода пропускаются. */
+    fun headings(noteText: String): List<Heading> {
+        val bodyStart = FrontmatterParser.parse(noteText).bodyStart
+        return MarkdownMask.maskCode(noteText).substring(bodyStart).split('\n').mapNotNull { line ->
+            HEADING.find(line)?.let { m ->
+                m.groupValues[2].trim().takeIf { it.isNotEmpty() }?.let { Heading(m.groupValues[1].length, it) }
+            }
+        }
+    }
+
+    /** Текст заголовка для ссылки: Obsidian не допускает `[ ] | # ^` внутри `[[…]]`. */
+    fun headingForLink(text: String): String =
+        text.map { if (it in "[]|#^") ' ' else it }.joinToString("").replace(SPACES, " ").trim()
 
     /** Сколько `]` (0..2) уже стоит сразу с [offset] — чтобы дописать только недостающие. */
     fun closingBracketsAt(text: CharSequence, offset: Int): Int {

@@ -88,3 +88,42 @@ class WikiLinkTextTest {
         assertFalse(WikiLinkText.isValidNoteName(" "))
     }
 }
+
+class HeadingCompletionTest {
+    private fun q(s: String) = WikiLinkText.headingQuery(s.replace("¦", ""), s.indexOf('¦'))
+
+    @org.junit.Test
+    fun headingQueryLevels() {
+        val one = q("# [[testpath#ins¦")!!
+        org.junit.Assert.assertEquals("testpath", one.target)
+        org.junit.Assert.assertNull(one.level)
+        org.junit.Assert.assertEquals(12, one.hashStart)
+        org.junit.Assert.assertEquals(13, one.prefixStart)
+
+        val two = q("# [[testpath##¦")!!
+        org.junit.Assert.assertEquals(2, two.level)
+        org.junit.Assert.assertEquals(14, two.prefixStart)
+
+        org.junit.Assert.assertEquals(3, q("[[a###x¦")!!.level)
+        org.junit.Assert.assertEquals("", q("[[#¦")!!.target)
+    }
+
+    @org.junit.Test
+    fun noHeadingQueryOutsideOpenLink() {
+        org.junit.Assert.assertNull(q("# [[testpath¦"))
+        org.junit.Assert.assertNull(q("# [[testpath#x]] #¦"))
+        org.junit.Assert.assertNull(q("# [[a|alias#¦"))
+        org.junit.Assert.assertNull(q("# [[a#b#¦"))
+        org.junit.Assert.assertNull(q("# [testpath#¦"))
+    }
+
+    @org.junit.Test
+    fun headingsSkipFrontmatterAndCode() {
+        val text = "---\ntitle: x\n---\n# Intro\ntext\n## Installation ##\n```\n# not a heading\n```\n### Step [1] | a\n#tag\n"
+        org.junit.Assert.assertEquals(
+            listOf(Heading(1, "Intro"), Heading(2, "Installation"), Heading(3, "Step [1] | a")),
+            WikiLinkText.headings(text),
+        )
+        org.junit.Assert.assertEquals("Step 1 a", WikiLinkText.headingForLink("Step [1] | a"))
+    }
+}

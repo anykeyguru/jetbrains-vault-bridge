@@ -102,6 +102,7 @@ vault, and the vault can live anywhere on disk.
 | What | How |
 |---|---|
 | Complete a note name | Type `[[` in a comment, string, Markdown or text file. No popup? Press **Ctrl+Space**. |
+| Link a heading | Type `#` after the name: `[[Note#` lists all headings, `[[Note##` only level 2, `[[Note###` level 3. Inserted as `[[Note#Installation]]`. `[[#` lists headings of the current note. |
 | Open the note | **Cmd/Ctrl+Click** or **Cmd/Ctrl+B** on the link. `[[Note#Heading]]` opens at the heading. |
 | Gutter icon | Shown on comments with links; click to open, several links show a chooser. Can be turned off in settings. |
 | Missing note | The link is highlighted. **Alt+Enter → Create note** creates it in the vault and opens it. |
