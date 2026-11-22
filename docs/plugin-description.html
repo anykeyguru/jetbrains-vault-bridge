@@ -27,7 +27,8 @@ The vault can live anywhere on disk; it does not have to be inside the project.<
       <code>[[Note#Installation]]</code>. <code>[[#</code> lists headings of the current note.</li>
   <li><b>Open a note</b> — Cmd/Ctrl+Click or <b>Cmd/Ctrl+B</b> on <code>[[Note]]</code>; <code>[[Note#Heading]]</code> opens at that heading.</li>
   <li><b>Gutter icon</b> — on comments with links; several links in one comment show a chooser.</li>
-  <li><b>Missing notes</b> — links to notes that do not exist are highlighted. Press <b>Alt+Enter → Create note</b> to create it.</li>
+  <li><b>Missing notes</b> — links to notes that do not exist are highlighted. Press <b>Alt+Enter → Create note</b> to create it.
+      <code>[[Note#Heading]]</code> is also highlighted when the note has no such heading.</li>
 </ul>
 <h3>Notes</h3>
 <p>All actions are under <b>Tools → Vault Bridge</b>, or press <b>Shift Shift</b> and type the action name.</p>
@@ -36,6 +37,8 @@ The vault can live anywhere on disk; it does not have to be inside the project.<
   <li><b>Open Daily Note</b> — today's note, using the folder, date format and template from Obsidian's Daily notes settings.</li>
   <li><b>New Note…</b> — use <code>/</code> for subfolders: <code>ideas/caching</code>.</li>
   <li><b>Vault Diagnostics</b> — broken links, duplicate note names, notes that failed to load.</li>
+  <li><b>Check Note Links in Project</b> — goes through the project's comments, strings, Markdown and text files and lists
+      <code>[[links]]</code> whose note or <code>#heading</code> no longer exists. Double-click a row to jump to it.</li>
   <li><b>Re-index Vault</b> — rarely needed: changes, including those made in Obsidian, are picked up automatically.</li>
 </ul>
 <h3>Tool windows</h3>
@@ -59,6 +62,8 @@ The vault can live anywhere on disk; it does not have to be inside the project.<
   <li><b>“0 notes”</b> — check that the folder is the vault root (the one with <code>.obsidian/</code>), then run <b>Re-index Vault</b>.</li>
   <li><b>A link is highlighted as missing but the note exists</b> — the link uses the file name, not the title;
       check the spelling or add the title to <code>aliases</code> in the note's front matter.</li>
+  <li><b>“Vault: missing”</b> in red — the vault folder is gone (moved, renamed, unmounted drive). Hover it to see the path,
+      then fix it in <b>Settings → Tools → Vault Bridge</b> or in <code>.vaultbridge.json</code>.</li>
   <li><b>Vault Diagnostics</b> shows what was indexed and what was not.</li>
 </ul>
 <p>Guide, source and issues: <a href="https://github.com/anykeyguru/jetbrains-vault-bridge">github.com/anykeyguru/jetbrains-vault-bridge</a></p>
