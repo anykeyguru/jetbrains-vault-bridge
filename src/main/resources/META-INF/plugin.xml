@@ -26,6 +26,27 @@
                     class="dev.anykeyguru.vaultbridge.actions.ReindexVaultAction"
                     text="Re-index Vault"
                     description="Rescan all notes in the Obsidian vault"/>
+            <!-- actions: search, daily, new, diagnostics -->
+            <action id="VaultBridge.Search"
+                    class="dev.anykeyguru.vaultbridge.actions.SearchVaultAction"
+                    text="Search Vault…"
+                    description="Find notes by title, alias, tag, path or content"
+                    icon="/icons/action-search.svg"/>
+            <action id="VaultBridge.DailyNote"
+                    class="dev.anykeyguru.vaultbridge.actions.OpenDailyNoteAction"
+                    text="Open Daily Note"
+                    description="Open or create today's daily note using Obsidian's Daily notes settings"
+                    icon="/icons/action-daily.svg"/>
+            <action id="VaultBridge.NewNote"
+                    class="dev.anykeyguru.vaultbridge.actions.NewNoteAction"
+                    text="New Note…"
+                    description="Create a note in the vault (use / for subfolders)"
+                    icon="/icons/action-new-note.svg"/>
+            <action id="VaultBridge.Diagnostics"
+                    class="dev.anykeyguru.vaultbridge.actions.VaultDiagnosticsAction"
+                    text="Vault Diagnostics"
+                    description="Show vault statistics, unresolved links and duplicate note names"
+                    icon="/icons/action-diagnostics.svg"/>
         </group>
     </actions>
 </idea-plugin>
