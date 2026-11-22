@@ -1,0 +1,31 @@
+<idea-plugin>
+    <id>dev.anykeyguru.vaultbridge</id>
+    <name>Vault Bridge</name>
+    <vendor>anykeyguru</vendor>
+    <description><![CDATA[
+        Obsidian vault inside JetBrains IDEs: <code>[[wiki-link]]</code> completion and navigation
+        from code comments, backlinks, tags, graph and full-text search over your notes.
+    ]]></description>
+
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <projectConfigurable parentId="tools"
+                             id="dev.anykeyguru.vaultbridge.settings"
+                             displayName="Vault Bridge"
+                             instance="dev.anykeyguru.vaultbridge.settings.VaultConfigurable"/>
+        <postStartupActivity implementation="dev.anykeyguru.vaultbridge.startup.VaultStartup"/>
+        <statusBarWidgetFactory id="VaultBridge.Status"
+                                implementation="dev.anykeyguru.vaultbridge.ui.VaultStatusBarWidgetFactory"/>
+    </extensions>
+
+    <actions>
+        <group id="VaultBridge.Menu" text="Vault Bridge" popup="true" icon="/icons/vault.svg">
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action id="VaultBridge.Reindex"
+                    class="dev.anykeyguru.vaultbridge.actions.ReindexVaultAction"
+                    text="Re-index Vault"
+                    description="Rescan all notes in the Obsidian vault"/>
+        </group>
+    </actions>
+</idea-plugin>
