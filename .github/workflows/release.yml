@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Resolve version from tag
+        id: ver
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          VERSION="${TAG#v}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "since=$(sed -n 's/^pluginSinceBuild *= *//p' gradle.properties)" >> "$GITHUB_OUTPUT"
+
+      - name: Test and build plugin
+        env:
+          VERSION: ${{ steps.ver.outputs.version }}
+        run: ./gradlew test buildPlugin "-PpluginVersion=${VERSION}" --console=plain
+
+      - name: Prepare release assets
+        env:
+          TAG: ${{ steps.ver.outputs.tag }}
+          VERSION: ${{ steps.ver.outputs.version }}
+          SINCE: ${{ steps.ver.outputs.since }}
+        run: |
+          set -eu
+          ZIP="jetbrains-vault-bridge-${VERSION}.zip"
+          mkdir -p dist
+          cp "build/distributions/${ZIP}" "dist/${ZIP}"
+          cp "build/distributions/${ZIP}" dist/vault-bridge.zip
+          cp install.sh dist/install.sh
+          cat > dist/updatePlugins.xml <<XML
+          <?xml version="1.0" encoding="UTF-8"?>
+          <plugins>
+            <plugin id="dev.anykeyguru.vaultbridge"
+                    url="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/${ZIP}"
+                    version="${VERSION}">
+              <idea-version since-build="${SINCE}"/>
+              <name>Vault Bridge</name>
+              <vendor>anykeyguru</vendor>
+              <description><![CDATA[Obsidian vault inside JetBrains IDEs: [[wiki-link]] completion and navigation from code comments, backlinks, tags, graph and search over your notes.]]></description>
+              <change-notes><![CDATA[See <a href="https://github.com/${GITHUB_REPOSITORY}/releases/tag/${TAG}">release ${TAG}</a>.]]></change-notes>
+            </plugin>
+          </plugins>
+          XML
+          cat dist/updatePlugins.xml
+          ls -l dist
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Vault Bridge ${{ steps.ver.outputs.version }}
+          generate_release_notes: true
+          prerelease: ${{ contains(steps.ver.outputs.tag, '-') }}
+          files: |
+            dist/*.zip
+            dist/updatePlugins.xml
+            dist/install.sh
