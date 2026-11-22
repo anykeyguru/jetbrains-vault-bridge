@@ -17,6 +17,16 @@
         <postStartupActivity implementation="dev.anykeyguru.vaultbridge.startup.VaultStartup"/>
         <statusBarWidgetFactory id="VaultBridge.Status"
                                 implementation="dev.anykeyguru.vaultbridge.ui.VaultStatusBarWidgetFactory"/>
+        <!-- editor: wiki-links -->
+        <completion.contributor language="any" order="first"
+                                implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkCompletionContributor"/>
+        <completion.confidence language="any" order="first"
+                               implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkCompletionConfidence"/>
+        <typedHandler order="first" implementation="dev.anykeyguru.vaultbridge.editor.WikiLinkTypedHandler"/>
+        <codeInsight.lineMarkerProvider language="any"
+                                        implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkLineMarkerProvider"/>
+        <gotoDeclarationHandler implementation="dev.anykeyguru.vaultbridge.editor.WikiLinkGotoDeclarationHandler"/>
+        <annotator language="any" implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkAnnotator"/>
     </extensions>
 
     <actions>
