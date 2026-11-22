@@ -1,0 +1,61 @@
+<p>Your <a href="https://obsidian.md">Obsidian</a> vault, right inside PyCharm, GoLand and other JetBrains IDEs.
+Link code to notes with <code>[[wiki-links]]</code>, jump to a note with one click, search and browse your notes
+without switching windows. Obsidian itself does not need to be running: the plugin reads the <code>.md</code> files directly.</p>
+
+<h2>Quick start (1 minute)</h2>
+<ol>
+  <li>Open <b>Settings → Tools → Vault Bridge</b> (or click <b>Vault: not set</b> in the status bar at the bottom).</li>
+  <li>In <b>Vault folder</b>, choose your vault — the folder that contains <code>.obsidian/</code>. Click <b>OK</b>.</li>
+  <li>The status bar shows <b>Vault: &lt;name&gt; · N notes</b>. Done.</li>
+</ol>
+<p>Try it: in any code comment type <code>[[</code> and pick a note:</p>
+<pre>
+# how the retry policy works: [[Retry policy]]
+// see [[Traefik#Middlewares]]
+</pre>
+<p>A vault icon appears in the gutter — click it, or <b>Cmd/Ctrl+Click</b> the link, to open the note.</p>
+<p>The vault is set <b>per project</b>, so different projects can use different vaults.
+The vault can live anywhere on disk; it does not have to be inside the project.</p>
+
+<h2>What you can do</h2>
+<h3>Links in code</h3>
+<ul>
+  <li><b>Completion</b> — type <code>[[</code> in a comment, string, Markdown or text file to get note names and aliases.
+      If the list does not pop up (some languages block it in comments), press <b>Ctrl+Space</b>.</li>
+  <li><b>Open a note</b> — Cmd/Ctrl+Click or <b>Cmd/Ctrl+B</b> on <code>[[Note]]</code>; <code>[[Note#Heading]]</code> opens at that heading.</li>
+  <li><b>Gutter icon</b> — on comments with links; several links in one comment show a chooser.</li>
+  <li><b>Missing notes</b> — links to notes that do not exist are highlighted. Press <b>Alt+Enter → Create note</b> to create it.</li>
+</ul>
+<h3>Notes</h3>
+<p>All actions are under <b>Tools → Vault Bridge</b>, or press <b>Shift Shift</b> and type the action name.</p>
+<ul>
+  <li><b>Search Vault…</b> — by title, alias, <code>#tag</code>, folder or text inside notes.</li>
+  <li><b>Open Daily Note</b> — today's note, using the folder, date format and template from Obsidian's Daily notes settings.</li>
+  <li><b>New Note…</b> — use <code>/</code> for subfolders: <code>ideas/caching</code>.</li>
+  <li><b>Vault Diagnostics</b> — broken links, duplicate note names, notes that failed to load.</li>
+  <li><b>Re-index Vault</b> — rarely needed: changes, including those made in Obsidian, are picked up automatically.</li>
+</ul>
+<h3>Tool windows</h3>
+<p>Open them from <b>View → Tool Windows</b>:</p>
+<ul>
+  <li><b>Vault Backlinks</b> — which notes link to the open note, with the line around each link; plus its outgoing links.</li>
+  <li><b>Vault Tags</b> — nested tags (<code>project/alpha</code>) with note counts; start typing to filter.</li>
+  <li><b>Vault Graph</b> — links around the current note (depth 1–3) or the whole vault. Scroll to zoom, drag to pan, click to open.</li>
+</ul>
+
+<h2>Tips</h2>
+<ul>
+  <li><b>Shortcuts</b> are not assigned by default so they do not clash with your IDE. Add your own in
+      <b>Settings → Keymap</b>, search for “Vault”.</li>
+  <li>Turn the gutter icon off in <b>Settings → Tools → Vault Bridge</b> if you prefer a clean gutter.</li>
+  <li>The vault path is stored in the project's <code>workspace.xml</code>, so it is not committed to git.</li>
+</ul>
+
+<h2>Something is wrong?</h2>
+<ul>
+  <li><b>“0 notes”</b> — check that the folder is the vault root (the one with <code>.obsidian/</code>), then run <b>Re-index Vault</b>.</li>
+  <li><b>A link is highlighted as missing but the note exists</b> — the link uses the file name, not the title;
+      check the spelling or add the title to <code>aliases</code> in the note's front matter.</li>
+  <li><b>Vault Diagnostics</b> shows what was indexed and what was not.</li>
+</ul>
+<p>Guide, source and issues: <a href="https://github.com/anykeyguru/jetbrains-vault-bridge">github.com/anykeyguru/jetbrains-vault-bridge</a></p>

@@ -35,6 +35,10 @@ class VaultConfigurable(private val project: Project) : BoundConfigurable("Vault
                 }
         }
         row {
+            browserLink("Quick start guide", dev.anykeyguru.vaultbridge.startup.Onboarding.GUIDE_URL)
+            comment("Type <code>[[</code> in a code comment to link a note; Cmd/Ctrl+Click the link to open it.")
+        }
+        row {
             checkBox("Show gutter icons for [[wiki-links]] in code comments")
                 .bindSelected({ settings.showGutterIcons }, { settings.showGutterIcons = it })
         }

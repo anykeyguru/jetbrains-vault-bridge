@@ -2,10 +2,7 @@
     <id>dev.anykeyguru.vaultbridge</id>
     <name>Vault Bridge</name>
     <vendor>anykeyguru</vendor>
-    <description><![CDATA[
-        Obsidian vault inside JetBrains IDEs: <code>[[wiki-link]]</code> completion and navigation
-        from code comments, backlinks, tags, graph and full-text search over your notes.
-    ]]></description>
+    <!-- description и change-notes подставляются при сборке из docs/*.html -->
 
     <depends>com.intellij.modules.platform</depends>
 
@@ -15,6 +12,7 @@
                              displayName="Vault Bridge"
                              instance="dev.anykeyguru.vaultbridge.settings.VaultConfigurable"/>
         <postStartupActivity implementation="dev.anykeyguru.vaultbridge.startup.VaultStartup"/>
+        <notificationGroup id="Vault Bridge" displayType="BALLOON"/>
         <statusBarWidgetFactory id="VaultBridge.Status"
                                 implementation="dev.anykeyguru.vaultbridge.ui.VaultStatusBarWidgetFactory"/>
         <!-- toolwindows: backlinks, tags, graph -->
