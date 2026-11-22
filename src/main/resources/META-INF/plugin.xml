@@ -30,10 +30,10 @@
         <completion.confidence language="any" order="first"
                                implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkCompletionConfidence"/>
         <typedHandler order="first" implementation="dev.anykeyguru.vaultbridge.editor.WikiLinkTypedHandler"/>
-        <codeInsight.lineMarkerProvider language="any"
+        <codeInsight.lineMarkerProvider language=""
                                         implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkLineMarkerProvider"/>
         <gotoDeclarationHandler implementation="dev.anykeyguru.vaultbridge.editor.WikiLinkGotoDeclarationHandler"/>
-        <annotator language="any" implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkAnnotator"/>
+        <annotator language="" implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkAnnotator"/>
     </extensions>
 
     <actions>
