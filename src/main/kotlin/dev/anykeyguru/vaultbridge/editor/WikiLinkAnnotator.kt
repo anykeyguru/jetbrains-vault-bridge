@@ -8,6 +8,7 @@ import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.application.WriteAction
 import com.intellij.openapi.diagnostic.logger
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
@@ -21,6 +22,8 @@ import com.intellij.psi.PsiElement
 import com.intellij.psi.PsiFile
 import com.intellij.psi.util.CachedValueProvider
 import com.intellij.psi.util.CachedValuesManager
+import dev.anykeyguru.vaultbridge.check.LinkCheck
+import dev.anykeyguru.vaultbridge.model.Note
 import dev.anykeyguru.vaultbridge.model.WikiLink
 import dev.anykeyguru.vaultbridge.parse.FrontmatterParser
 import dev.anykeyguru.vaultbridge.parse.MarkdownMask
@@ -68,11 +71,27 @@ class WikiLinkAnnotator : Annotator, DumbAware {
     }
 
     private fun report(link: WikiLink, base: Int, ctx: VaultContext, holder: AnnotationHolder) {
-        if (link.target.isEmpty() || WikiLinkText.isAttachment(link.target) || ctx.resolve(link) != null) return
+        if (link.target.isEmpty() || WikiLinkText.isAttachment(link.target)) return
+        val note = ctx.resolve(link)
+        if (note != null) {
+            reportHeading(link, base, ctx, note, holder)
+            return
+        }
         val builder = holder.newAnnotation(HighlightSeverity.WEAK_WARNING, "Note not found in vault: ${link.target}")
             .range(TextRange(base + link.start, base + link.end))
         if (WikiLinkText.isValidNoteName(link.target)) builder.withFix(CreateNoteFix(ctx.root, link.target.trim()))
         builder.create()
+    }
+
+    /** `[[Note#Heading]]`, где у заметки нет такого заголовка. Документ заметки кэширует FileDocumentManager. */
+    private fun reportHeading(link: WikiLink, base: Int, ctx: VaultContext, note: Note, holder: AnnotationHolder) {
+        val heading = link.heading ?: return
+        val vf = WikiLinkSupport.noteFile(ctx.root, note) ?: return
+        val text = FileDocumentManager.getInstance().getDocument(vf)?.text ?: return
+        if (LinkCheck.headingExists(text, heading)) return
+        holder.newAnnotation(HighlightSeverity.WEAK_WARNING, "Heading not found in ${note.name}: ${heading.trim()}")
+            .range(TextRange(base + link.start, base + link.end))
+            .create()
     }
 
     private fun markdownLinks(file: PsiFile): List<WikiLink> = CachedValuesManager.getCachedValue(file) {

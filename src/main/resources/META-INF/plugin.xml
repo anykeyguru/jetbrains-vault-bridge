@@ -33,6 +33,9 @@
                                         implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkLineMarkerProvider"/>
         <gotoDeclarationHandler implementation="dev.anykeyguru.vaultbridge.editor.WikiLinkGotoDeclarationHandler"/>
         <annotator language="" implementationClass="dev.anykeyguru.vaultbridge.editor.WikiLinkAnnotator"/>
+        <!-- link check + missing status -->
+        <toolWindow id="Vault Link Check" anchor="bottom" icon="/icons/action-diagnostics.svg"
+                    factoryClass="dev.anykeyguru.vaultbridge.check.LinkCheckToolWindowFactory"/>
     </extensions>
 
     <actions>
@@ -63,6 +66,11 @@
                     text="Vault Diagnostics"
                     description="Show vault statistics, unresolved links and duplicate note names"
                     icon="/icons/action-diagnostics.svg"/>
+            <!-- link check + missing status -->
+            <action id="VaultBridge.CheckLinks"
+                    class="dev.anykeyguru.vaultbridge.check.CheckNoteLinksAction"
+                    text="Check Note Links in Project"
+                    description="Find [[links]] in project files that point to missing notes or headings"/>
         </group>
     </actions>
 </idea-plugin>

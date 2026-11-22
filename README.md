@@ -118,6 +118,9 @@ Under **Tools > Vault Bridge**, or press **Shift Shift** and type the name:
 - **Open Daily Note** — uses the folder, date format and template from Obsidian's *Daily notes* settings.
 - **New Note…** — `ideas/caching` creates `ideas/caching.md`.
 - **Vault Diagnostics** — broken links, duplicate names, files that weren't indexed.
+- **Check Note Links in Project** — scans comments, strings, Markdown and text files in the project for `[[links]]` to
+  missing notes or headings and lists them in the **Vault Link Check** tool window (double-click to jump, **Re-run** to
+  check again). Notes inside the vault itself are skipped — that's Obsidian's job.
 - **Re-index Vault** — rarely needed: edits, including those made in Obsidian, are picked up automatically.
 
 No shortcuts are bound by default, to avoid clashing with your keymap. Add your own in **Settings > Keymap**
@@ -140,6 +143,7 @@ No shortcuts are bound by default, to avoid clashing with your keymap. Add your 
 | No completion popup after `[[` | Some languages block auto-popup in comments: press **Ctrl+Space**. |
 | Link marked missing, but the note exists | Links use the file name, not the title. Fix the name or add the title to `aliases`. |
 | No gutter icon | Check **Settings > Tools > Vault Bridge** and **Editor > General > Gutter Icons**. |
+| Status bar says `Vault: missing` (red) | The vault folder no longer exists at that path. Hover for the path, then fix it in **Settings > Tools > Vault Bridge** or `.vaultbridge.json`. |
 | Anything else | Run **Vault Diagnostics** and [open an issue](https://github.com/anykeyguru/jetbrains-vault-bridge/issues). |
 
 ## Build from source
