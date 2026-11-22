@@ -13,6 +13,8 @@
                              instance="dev.anykeyguru.vaultbridge.settings.VaultConfigurable"/>
         <postStartupActivity implementation="dev.anykeyguru.vaultbridge.startup.VaultStartup"/>
         <notificationGroup id="Vault Bridge" displayType="BALLOON"/>
+        <!-- config + git sync -->
+        <postStartupActivity implementation="dev.anykeyguru.vaultbridge.config.VaultConfigStartup"/>
         <statusBarWidgetFactory id="VaultBridge.Status"
                                 implementation="dev.anykeyguru.vaultbridge.ui.VaultStatusBarWidgetFactory"/>
         <!-- toolwindows: backlinks, tags, graph -->
@@ -71,6 +73,15 @@
                     class="dev.anykeyguru.vaultbridge.check.CheckNoteLinksAction"
                     text="Check Note Links in Project"
                     description="Find [[links]] in project files that point to missing notes or headings"/>
+            <!-- config + git sync -->
+            <action id="VaultBridge.CreateConfig"
+                    class="dev.anykeyguru.vaultbridge.config.CreateConfigAction"
+                    text="Create .vaultbridge.json"
+                    description="Save the vault path and git auto-commit settings to .vaultbridge.json in the project root"/>
+            <action id="VaultBridge.CommitNow"
+                    class="dev.anykeyguru.vaultbridge.config.CommitVaultNowAction"
+                    text="Commit Vault Now"
+                    description="Commit vault changes to its git repository now (and push, if enabled in .vaultbridge.json)"/>
         </group>
     </actions>
 </idea-plugin>

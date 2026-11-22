@@ -8,6 +8,10 @@ import com.intellij.ui.dsl.builder.AlignX
 import com.intellij.ui.dsl.builder.bindSelected
 import com.intellij.ui.dsl.builder.bindText
 import com.intellij.ui.dsl.builder.panel
+import dev.anykeyguru.vaultbridge.config.Durations
+import dev.anykeyguru.vaultbridge.config.GitSyncConfig
+import dev.anykeyguru.vaultbridge.config.VaultConfigService
+import dev.anykeyguru.vaultbridge.config.VaultGitSync
 import dev.anykeyguru.vaultbridge.index.VaultIndexService
 import java.io.File
 
@@ -15,7 +19,16 @@ class VaultConfigurable(private val project: Project) : BoundConfigurable("Vault
     private val settings get() = VaultSettings.getInstance(project).state
 
     override fun createPanel(): DialogPanel = panel {
-        row("Vault folder:") {
+        val config = VaultConfigService.getInstance(project)
+        val fromFile = config.vaultRoot()
+        if (fromFile != null) {
+            // .vaultbridge.json главнее настроек: показываем путь только для чтения, настройку не трогаем
+            row("Vault folder:") {
+                textField().applyToComponent { text = fromFile.toString() }.enabled(false).align(AlignX.FILL)
+                    .comment("Set by <code>.vaultbridge.json</code> in the project root" + gitSummary(config.gitConfig()))
+            }
+            row { link("Open .vaultbridge.json") { config.openConfigFile() } }
+        } else row("Vault folder:") {
             textFieldWithBrowseButton(
                 fileChooserDescriptor = FileChooserDescriptorFactory.createSingleFolderDescriptor()
                     .withTitle("Select Obsidian Vault"),
@@ -44,9 +57,20 @@ class VaultConfigurable(private val project: Project) : BoundConfigurable("Vault
         }
     }
 
+    private fun gitSummary(git: GitSyncConfig?): String = when {
+        git == null || (!git.autoCommit && !git.push) -> ". Git sync: off."
+        else -> ". Git sync: " + listOfNotNull(
+            if (git.autoCommit) "commit every ${Durations.format(git.commitInterval)}" else null,
+            if (git.push) "push every ${Durations.format(git.pushInterval)}" else null,
+        ).joinToString(", ") + "."
+    }
+
     override fun apply() {
         val before = settings.vaultPath
         super.apply()
-        if (settings.vaultPath != before) VaultIndexService.getInstance(project).reindex()
+        if (settings.vaultPath != before) {
+            VaultIndexService.getInstance(project).reindex()
+            VaultGitSync.getInstance(project).restart() // .vaultbridge.json без "vault" берёт путь из настроек
+        }
     }
 }
